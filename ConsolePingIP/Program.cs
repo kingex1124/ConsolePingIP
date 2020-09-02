@@ -79,6 +79,14 @@ namespace ConsolePingIP
                     foreach (PSObject resultItem in powerResult)
                         result = resultItem.Members["TcpTestSucceeded"].Value.ToString();
 
+                    // powerShell錯誤訊息由此處處理
+                    PSDataCollection<ErrorRecord> errors = powershell.Streams.Error;
+                    if (errors != null && errors.Count > 0)
+                    {
+                        foreach (ErrorRecord err in errors)
+                            Console.WriteLine("錯誤: {0}", err.ToString());
+                    }
+
                     if (result == "False")
                     {
                         // 失敗處理
