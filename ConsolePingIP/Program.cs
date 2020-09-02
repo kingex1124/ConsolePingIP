@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
@@ -37,7 +38,7 @@ namespace ConsolePingIP
         /// </summary>
         /// <param name="ip"></param>
         /// <param name="port"></param>
-        public void PingIPPort(string ip , int port)
+        public void PingIPPort(string ip, int port)
         {
             using (TcpClient tcpClient = new TcpClient(ip, port))
             {
@@ -47,9 +48,93 @@ namespace ConsolePingIP
                 }
                 else
                 {
-                   // 連線失敗
+                    // 連線失敗
                 }
             }
         }
+
+        // 使用powerShell去pingIP 
+        // 要先在專案檔中加入 	<Reference Include="System.Management.Automation" />
+
+        /// <summary>
+        /// 透過powershell Ping IP
+        /// </summary>
+        /// <param name="ip"></param>
+        public void PingIPByPowerShell(string ip)
+        {
+            string powStr = string.Empty;
+
+            try
+            {
+                using (PowerShell powershell = PowerShell.Create())
+                {
+                    string result = string.Empty;
+
+                    powStr = string.Format("Test-NetConnection -ComputerName {0} ", ip);
+
+                    powershell.AddScript(powStr);
+
+                    var powerResult = powershell.Invoke();
+
+                    foreach (PSObject resultItem in powerResult)
+                        result = resultItem.Members["TcpTestSucceeded"].Value.ToString();
+
+                    if (result == "False")
+                    {
+                        // 失敗處理
+                    }
+                    else
+                    {
+                        // 成功處理
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// 透過powershell Ping IP 有Port
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        public void PingIPByPowerShell(string ip, int port)
+        {
+            string powStr = string.Empty;
+
+            try
+            {
+                using (PowerShell powershell = PowerShell.Create())
+                {
+                    string result = string.Empty;
+
+                    powStr = string.Format("Test-NetConnection -ComputerName {0} -Port {1}", ip, port);
+
+                    powershell.AddScript(powStr);
+
+                    var powerResult = powershell.Invoke();
+
+                    foreach (PSObject resultItem in powerResult)
+                        result = resultItem.Members["TcpTestSucceeded"].Value.ToString();
+
+                    if (result == "False")
+                    {
+                        // 失敗處理
+                    }
+                    else
+                    {
+                        // 成功處理
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+
     }
 }
